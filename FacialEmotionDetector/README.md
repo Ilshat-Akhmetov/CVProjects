@@ -27,10 +27,10 @@ python main.py
 ```python
 python main.py
 ```
-![surprise](example_images/surprise.PNG)
-![neutral](example_images/neutral.PNG)
-![sad_squidgames](example_images/squidgames.PNG)
-![scrubs](example_images/scrubs.PNG)
+![surprise](example_emotions_detected/surprise.PNG)
+![neutral](example_emotions_detected/neutral.PNG)
+![sad_squidgames](example_emotions_detected/squidgames.PNG)
+![scrubs](example_emotions_detected/scrubs.PNG)
 
 В файле TrainModelFER2013.ipynb вы можете посмотреть пайплайн для обучения детектора эмоций
 Был использован датасет который вы можете найти по ссылке https://www.kaggle.com/datasets/jonathanoheix/face-expression-recognition-dataset
