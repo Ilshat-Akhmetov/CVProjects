@@ -27,7 +27,7 @@ python main.py
 ```python
 python main.py
 ```
-![happy](example_images/happy.PNG)
+![surprise](example_images/surprise.PNG)
 ![neutral](example_images/neutral.PNG)
 ![sad_squidgames](example_images/squidgames.PNG)
 ![scrubs](example_images/scrubs.PNG)
