@@ -1,0 +1,29 @@
+{
+    "class_names": [
+        "angry",
+        "disgust",
+        "fear",
+        "happy",
+        "neutral",
+        "sad",
+        "surprise"
+    ],
+    "img_size": [
+        224,
+        224
+    ],
+    "inp_size": [
+        1,
+        1,
+        224,
+        224
+    ],
+    "mean": [
+        0.508
+    ],
+    "std": [
+        0.255
+    ],
+    "onnx_model_path": "SavedModels\\resnet18_fer.onnx",
+    "torch_model_path": "SavedModels\\resnet18_fer.pt"
+}
