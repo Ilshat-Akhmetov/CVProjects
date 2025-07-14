@@ -1,8 +1,8 @@
 import cv2 
-from .OnnxModel import OnnxModel
+from .OnnxClassificatorModel import OnnxModel
 import numpy as np
 import os
-from typing import Tuple
+from typing import Tuple, List
 
 
 class FacialEmotionsDetector:
@@ -52,28 +52,18 @@ class FacialEmotionsDetector:
         
         while True: 
             # reads frames from a camera
-            _, img = cap.read() 
+            _, img_bgr = cap.read()
         
             # convert to gray scale of each frames
-            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            img_gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
         
             # Detects faces of different sizes in the input image
-            faces = self.face_cascade.detectMultiScale(gray, self.scale_factor, self.min_neights)
-        
-            for (x,y,w,h) in faces:
-                # To draw a rectangle in a face 
-                cv2.rectangle(img, (x,y),(x+w,y+h),(0, 255, 0), 2)
-                roi_gray = gray[y:y+h, x:x+w]
-                img_preprocessed = self.preprocess_img(roi_gray)
-                probs, classes = self.onnx_model.get_img_classes_probs(img_preprocessed)
-                l = len(probs)
-                cls_prob_labels = map(lambda i: f"{classes[i]}: {round(probs[i], 3)}", range(l))
-                char_size=20
-                for i, label in enumerate(cls_prob_labels):
-                    img = cv2.putText(img, label, (x, y+(i-2)*char_size), self.font, self.fontScale, self.color, self.thickness, cv2.LINE_AA)
+            faces = self.face_cascade.detectMultiScale(img_gray, self.scale_factor, self.min_neights)
+
+            img_bgr = self.process_faces(faces, img_gray, img_bgr)
         
             # Display an image in a window
-            cv2.imshow('Facial emotions detector. Press Esc to quit', img)
+            cv2.imshow('Facial emotions detector. Press Esc to quit', img_bgr)
         
             # Wait for Esc key to stop
             k = cv2.waitKey(30) & 0xff
@@ -84,6 +74,22 @@ class FacialEmotionsDetector:
         cv2.destroyAllWindows()
         return 0, 'everything is ok'
 
+    def process_faces(self, faces: List, orig_img: np.ndarray, img_for_drawing: np.ndarray) -> np.ndarray:
+        for (x, y, w, h) in faces:
+            # To draw a rectangle in a face
+            cv2.rectangle(img_for_drawing, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            roi_gray = orig_img[y:y + h, x:x + w]
+            img_preprocessed = self.preprocess_img(roi_gray)
+            probs, classes = self.onnx_model.get_img_classes_probs(img_preprocessed)
+            l = len(probs)
+            cls_prob_labels = map(lambda i: f"{classes[i]}: {round(probs[i], 3)}", range(l))
+            char_size = 20
+            for i, label in enumerate(cls_prob_labels):
+                img_for_drawing = cv2.putText(img_for_drawing, label, (x, y + (i - 2) * char_size),
+                        self.font, self.fontScale, self.color,
+                        self.thickness, cv2.LINE_AA)
+        return img_for_drawing
+
     def detect_emotions_on_photo(self, source: str) -> Tuple[int, str]:
         img_bgr = cv2.imread(source)
         if img_bgr is None:
@@ -93,19 +99,7 @@ class FacialEmotionsDetector:
         # Detects faces of different sizes in the input image
         faces = self.face_cascade.detectMultiScale(img_gray, self.scale_factor, self.min_neights)
 
-        for (x, y, w, h) in faces:
-            # To draw a rectangle in a face
-            cv2.rectangle(img_bgr, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            roi_gray = img_gray[y:y + h, x:x + w]
-            img_preprocessed = self.preprocess_img(roi_gray)
-            probs, classes = self.onnx_model.get_img_classes_probs(img_preprocessed)
-            l = len(probs)
-            cls_prob_labels = map(lambda i: f"{classes[i]}: {round(probs[i], 3)}", range(l))
-            char_size = 20
-            for i, label in enumerate(cls_prob_labels):
-                img_bgr = cv2.putText(img_bgr, label, (x, y + (i - 2) * char_size),
-                        self.font, self.fontScale, self.color,
-                        self.thickness, cv2.LINE_AA)
+        img_bgr = self.process_faces(faces, img_gray, img_bgr)
 
             # Display an image in a window
         cv2.imshow('Facial emotions detector', img_bgr)

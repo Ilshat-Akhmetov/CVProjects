@@ -1,5 +1,6 @@
 import numpy as np
 import onnxruntime as ort
+from typing import List, Tuple
 
 
 class OnnxModel:
@@ -32,7 +33,11 @@ class OnnxModel:
         sum_per_row = np.sum(data_exp, axis=1, keepdims=True)
         return data_exp / sum_per_row
 
-    def get_img_classes_probs(self, input_data: np.ndarray) -> np.ndarray:
+    def get_img_classes_probs(self, input_data: np.ndarray) -> Tuple[List[float], List[str]]:
+        """
+        input: np.ndarray with shape (1, 1, img_size, img_size)
+        output: Tuple: List with probs, List with most likely classes
+        """
         assert input_data.shape[0]==1, 'methods accepts only one image'
         max_outp_classes = 3
         nn_outp = self.forward(input_data)
